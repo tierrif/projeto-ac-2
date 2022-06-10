@@ -22,8 +22,6 @@
   scanfpoint: .asciz "%f"
 .align 4
   result:     .asciz "Result: %f\n"
-.align 4
-  debug_msg:     .asciz "[Debug] %f\n"
 
 @ Code Section
 .section .text
@@ -53,6 +51,7 @@ main:
   B    _exit
 
 ln:
+  VPUSH.F32 {S1-S13}
   @ S0 = n
   LDR  R0, =zero
   VLDR S1, [R0]        @ num = 0
@@ -108,6 +107,8 @@ ln:
 
   VMUL.F32 S4, S4, S10
   VMOV.F32 S0, S4
+
+  VPOP.F32 {S1-S13}
 
   BX       LR
 
