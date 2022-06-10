@@ -5,21 +5,17 @@
 .align 4
   one:        .single 1.0
 .align 4
-  two:        .single 2.0
-.align 4
   thousand:   .single 1000.0
 .align 4
-  epsilon:    .single 2.7182818284
+  half:       .single 0.5
 .align 4
-  pi:         .single 3.14159265
+  two:        .single 2.0
 .align 4
-  limit:      .single 1e-5
-.align 4
-  ten:        .single 10.0
-.align 4
-  sqrt_print: .asciz "Insert a value of log10(x): "
+  sqrt_print: .asciz "Insert a value of atanh(x): "
 .align 4
   value:      .fill 3, 4, 0
+.align 4
+  limit:      .single 1e-5
 .align 4
   scanfpoint: .asciz "%f"
 .align 4
@@ -43,28 +39,32 @@ main:
   LDR  R1, =value
   VLDR S0, [R1]
 
-  BL   log10            @ log10(S0)
+  BL   atanh            @ atanh(S0)
   LDR  R0, =result      @ R0 = *result
   VCVT.F64.F32 D0, S0   @ D0 = (double) S0
   VMOV R1, R2, D0       @ R1, R2 <- D0
-  BL   printf           @ printf(R0, (float)(R1, R2))
+  BL   printf           @ printf(R0, R1.R2)
 
   POP  {LR}
   B    _exit
 
-log10:
-  @ log10(x) = ln(x)/ln(10)
-  PUSH {LR}
-  BL   ln
-  POP  {LR}
-  VMOV.F32 S1, S0
+atanh:
+  LDR  R0, =one
+  VLDR S1, [R0]        @ 1 constant
+  VMOV.F32 S2, S0      @ Conservar x em S2.
 
-  LDR  R0, =ten
-  VLDR S0, [R0]
+  VADD.F32 S3, S1, S2
+  VSUB.F32 S4, S1, S2
+  VDIV.F32 S0, S3, S4
+
   PUSH {LR}
   BL   ln
   POP  {LR}
-  VDIV.F32 S0, S1, S0
+
+  LDR  R0, =half
+  VLDR S1, [R0]        @ 1/2
+  VMUL.F32 S0, S1
+
   BX   LR
 
 ln:
@@ -129,6 +129,3 @@ ln:
 
   BX       LR
 
-_exit:
-  MOV R7, #1
-  SVC #0 @ Invoke Syscall
