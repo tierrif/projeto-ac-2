@@ -1,9 +1,9 @@
-.include "./lib/libln.asm"
+.include "./lib/libatanh.asm"
 
 @ Data Section
 .data
 .align 4
-  print: .asciz "Insert a value of ln(x): "
+  print: .asciz "Insert a value of atanh(x): "
 .align 4
   value:      .fill 3, 4, 0
 .align 4
@@ -29,11 +29,11 @@ main:
   LDR  R1, =value
   VLDR S0, [R1]
 
-  BL   ln               @ ln(S0)
+  BL   atanh            @ atanh(S0)
   LDR  R0, =result      @ R0 = *result
   VCVT.F64.F32 D0, S0   @ D0 = (double) S0
   VMOV R1, R2, D0       @ R1, R2 <- D0
-  BL   printf           @ printf(R0, (float)(R1, R2))
+  BL   printf           @ printf(R0, R1.R2)
 
   POP  {LR}
   B    _exit

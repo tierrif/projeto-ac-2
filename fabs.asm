@@ -1,9 +1,9 @@
+.include "./lib/libfabs.asm"
+
 @ Data Section
 .data
 .align 4
-  zero:       .single 0.0
-.align 4
-  sqrt_print: .asciz "Insert a value of fabs(x): "
+  print:      .asciz "Insert a value of fabs(x): "
 .align 4
   value:      .fill 3, 4, 0
 .align 4
@@ -19,7 +19,7 @@
 
 main:
   PUSH {LR}
-  LDR  R0, =sqrt_print
+  LDR  R0, =print
   BL   printf
     
   LDR  R0, =scanfpoint
@@ -37,26 +37,6 @@ main:
 
   POP  {LR}
   B    _exit
-
-fabs:
-  VPUSH      {S1}
-  PUSH       {R0}
-
-  LDR        R0, =zero
-  VLDR       S1, [R0]
-  VCMP.F32   S0, S1
-  VMRS       APSR_nzcv, FPSCR
-  BGE        fabs_end
-
-  VNEG.F32   S0, S0           @ Negar os bits do valor binário de S0 de modo a se tornar positivo.
-
-  fabs_end:
-
-  VPOP.F32   {S1}
-  POP        {R0}
-
-  BX   LR
-
 
 _exit:
   MOV R7, #1
